@@ -8,16 +8,17 @@ const
     path                    = require('path'),
     sass                    = require('gulp-sass'),
     cleanCSS                = require('gulp-clean-css'),
+    uglify                  = require('gulp-uglify'),
+    pipeline                = require('readable-stream').pipeline,
     nodePhpAwesomeServer    = require('node-php-awesome-server'),
-    browserSync             = require('browser-sync').create()
+    browserSync             = require('browser-sync').create(),
+    babel                   = require('gulp-babel'),
+    gulpMultiProcess        = require('gulp-multi-process'),
+    watch                   = require('gulp-watch')
 ;
-
-var phpServer = null;
 
 //
 const PUBLIC_PATH = 'public';
-
-
 
 //----------------------------------------------------------
 //  SASS Compiling
@@ -30,12 +31,24 @@ gulp.task('sass', function () {
     .pipe(cleanCSS({compatibility: 'ie8'}))
     .pipe(gulp.dest(path.join(PUBLIC_PATH,'assets','css')));
 });
- 
-gulp.task('sass:watch', function () {
-    gulp.watch(path.join(PUBLIC_PATH, 'assets/views/**/*'), gulp.series('browserSync.reload'));
-    gulp.watch('./assets/styles/**/*.scss', gulp.series('sass', 'browserSync.reload'));
+
+gulp.task('js', function () {
+    return pipeline(
+        gulp.src([
+            'node_modules/babel-polyfill/dist/polyfill.js',
+            'node_modules/jquery/dist/jquery.min.js',
+            'node_modules/popper.js/dist/popper.min.js',
+            'assets/js/**/*.js'
+        ]),
+        babel({
+            presets: ['@babel/preset-env']
+        }),
+        uglify(),
+        gulp.dest(path.join(PUBLIC_PATH, 'assets/js/'))
+    );
 });
 
+gulp.task('assets', gulp.parallel('sass', 'js'));
 
 //----------------------------------------------------------
 //  SERVER
@@ -46,7 +59,7 @@ gulp.task('browserSync.reload', function () {
 
 gulp.task('serve', function(){
     var serverPort = 9000;
-    phpServer = nodePhpAwesomeServer({
+    var phpServer = nodePhpAwesomeServer({
         port: serverPort,
         root: PUBLIC_PATH,
         env: {
@@ -76,7 +89,22 @@ gulp.task('serve', function(){
 //----------------------------------------------------------
 //  Development tasks
 //----------------------------------------------------------
-gulp.task('dev', gulp.parallel('serve', 'sass:watch', function(){
+gulp.task('watch', function () {
+    var viewsPath = path.join(PUBLIC_PATH, 'assets/views/**/*.blade.php');
+    gulp.watch(viewsPath, function(){})
+    .on('change', function(){
+        gulp.series('browserSync.reload')();
+    });
+    gulp.watch('./assets/styles/*.scss', function () {})
+    .on('change', function(){
+        gulp.series('sass', 'browserSync.reload')();
+    });
+    gulp.watch('./assets/js/*.js', function () {}).on('change', function(){
+        gulp.series('js', 'browserSync.reload')();
+    });
+});
+
+gulp.task('dev', gulp.parallel('serve', gulp.series('assets', 'watch'), function(){
 
 }));
 

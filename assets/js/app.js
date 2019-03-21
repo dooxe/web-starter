@@ -1,8 +1,8 @@
 class MyApp {
     constructor(){
-
+        
     }
 }
 
 //
-let myApp = new MyApp();
+let myApp = new MyApp(); 
