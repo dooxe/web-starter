@@ -24,7 +24,12 @@ const PUBLIC_PATH = 'public';
 //  SASS Compiling
 //----------------------------------------------------------
 sass.compiler = require('node-sass');
- 
+
+gulp.task('fork-awesome', function () {
+    return gulp.src('./node_modules/fork-awesome/fonts/*')
+      .pipe(gulp.dest(path.join(PUBLIC_PATH,'assets','fonts')));
+});
+
 gulp.task('sass', function () {
   return gulp.src('./assets/styles/main.scss')
     .pipe(sass().on('error', sass.logError))
@@ -48,7 +53,7 @@ gulp.task('js', function () {
     );
 });
 
-gulp.task('assets', gulp.parallel('sass', 'js'));
+gulp.task('assets', gulp.parallel('sass', 'js', 'fork-awesome'));
 
 //----------------------------------------------------------
 //  SERVER
