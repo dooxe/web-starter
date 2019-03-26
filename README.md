@@ -1,13 +1,12 @@
 # Web Starter
 
-Web Start is a little starter kit to create websites with PHP, SASS, Bootstrap, and Babel.
-
-Web Start takes care of all basics you need to create a website.
+Web Start is a little starter kit to fastly create a website.
 
 ## Features
 - ES6 support with babel preprocessor
 - Bootstrap theming
 - SASS stylesheets
+- Fork Awesome icons
 - php server with browser synchronization
 - Blade template engine
 
@@ -31,7 +30,4 @@ Web Start takes care of all basics you need to create a website.
 To develop your website, run in console:
 `gulp dev`
 
-## Deploy
 
-To develop your website, run in console:
-`gulp dist`
